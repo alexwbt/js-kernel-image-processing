@@ -34,17 +34,17 @@ const sharpenKernel = size => {
     return kernel;
 };
 
-let imageData, offset = 1;
+let imageData, offset = 0;
 const image = new Image();
 image.onload = () => {
     canvas.width = image.width * 6;
     canvas.height = image.height;
     ctx.drawImage(image, 0, 0);
-    imageData = ctx.getImageData(0, 0, image.width, image.height);
+    offset = 0;
 
     // applyKernel(sharpenKernel(1));
     applyKernel(boxBlurKernel(2));
-    applyKernel(edgeDetectionKernel(2), true);
+    applyKernel(edgeDetectionKernel(2));
 };
 
 const reader = new FileReader();
@@ -55,7 +55,8 @@ input.addEventListener("change", () => reader.readAsDataURL(input.files[0]));
 const itxy = i => ({ x: i % image.width, y: Math.floor(i / image.width) });
 const xyti = (x, y) => y * image.width + x;
 
-const applyKernel = (kernel, grayScale = false, threshold = 0) => {
+const applyKernel = (kernel, fromOffset = offset, grayScale = false, threshold = 0) => {
+    imageData = ctx.getImageData(image.width * fromOffset, 0, image.width, image.height);
     const data = imageData.data.slice();
     for (let i = 0; i < data.length; i += 4) {
         const xy = itxy(i / 4);
@@ -89,5 +90,5 @@ const applyKernel = (kernel, grayScale = false, threshold = 0) => {
             imageData.data[i + 2] = b / w;
         }
     }
-    ctx.putImageData(imageData, image.width * offset++, 0);
+    ctx.putImageData(imageData, image.width * ++offset, 0);
 };
