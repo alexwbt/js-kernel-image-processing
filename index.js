@@ -14,7 +14,8 @@ image.onload = () => {
     offset = 0;
 
     applyKernel(gaussianKernel(2));
-    applyKernel(edgeDetectionKernel(2));
+    applyKernel(edgeDetectionKernel(2), true);
+    hysteresisThreshold(60, 125, 1);
 };
 
 
@@ -53,6 +54,29 @@ const applyKernel = (kernel, grayScale = false, fromOffset = offset) => {
             imageData.data[i + 1] = g / w;
             imageData.data[i + 2] = b / w;
         }
+    }
+    ctx.putImageData(imageData, image.width * ++offset, 0);
+};
+
+const connected = (data, i, strong, d) => {
+    const xy = indexToXY(i / 4);
+    for (let x = -d; x <= d; x++) {
+        for (let y = -d; y <= d; y++) {
+            const j = XYToIndex(xy.x + x, xy.y + y) * 4;
+            if (j >= 0 && j < data.length && data[j] >= strong)
+                return true;
+        }
+    }
+    return false;
+};
+const hysteresisThreshold = (weak, strong = 255, d = 1, fromOffset = offset) => {
+    imageData = ctx.getImageData(image.width * fromOffset, 0, image.width, image.height);
+    const data = imageData.data.slice();
+    for (let i = 0; i < data.length; i += 4) {
+        const value = data[i] >= strong || (data[i] >= weak && connected(data, i / 4, strong, d)) ? 255 : 0;
+        imageData.data[i] = value;
+        imageData.data[i + 1] = value;
+        imageData.data[i + 2] = value;
     }
     ctx.putImageData(imageData, image.width * ++offset, 0);
 };
