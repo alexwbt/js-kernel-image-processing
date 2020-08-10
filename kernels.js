@@ -33,7 +33,6 @@ const sharpenKernel = size => {
 
 const gaussianKernel = (size, a = 1) => {
     const kernel = [];
-    console.log(a);
     for (let x = -size; x <= size; x++)
         for (let y = -size; y <= size; y++) {
             const i = x + size + 1;
