@@ -15,7 +15,7 @@ image.onload = () => {
 
     applyKernel(gaussianKernel(2));
     applyKernel(edgeDetectionKernel(2), true);
-    hysteresisThreshold(60, 125, 1);
+    hysteresisThreshold(60, 125);
 };
 
 
